@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>小六壬排盘解析系统</title>
+    <style>
+        h2.title { 
+            text-align: center; 
+            font-family: '楷体'; 
+            color: #8B4513; 
+            margin: 20px 0; 
+            font-size: 28px; 
+            letter-spacing: 3px; 
+            font-weight: bold; 
+        }
+        #start-btn { 
+            display: block; 
+            margin: 0 auto; 
+            padding: 12px 35px; 
+            background: linear-gradient(45deg, #c7000a, #8B0000); 
+            color: #fff; 
+            border: 2px solid #ffd700; 
+            border-radius: 25px; 
+            font-size: 18px; 
+            cursor: pointer; 
+            transition: all 0.3s; 
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2); 
+            font-family: '楷体'; 
+        }
+        .palace { 
+            font-family: '楷体'; 
+            font-weight: bold; 
+            font-size: 24px; 
+            height: 150px; 
+            border: 3px solid #8B4513; 
+            border-radius: 10px; 
+            background: #F5DEB3; 
+            position: relative; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            color: #5C4033; 
+        }
+        .dizhi-container, .liuqin-container, .liushen-container, .wuxing-container { 
+            font-family: 'Microsoft YaHei'; 
+            font-size: 18px;
+            position: absolute;
+            font-weight: bold;
+        }
+        .dizhi-container { 
+            left: 30px; 
+            top: 50%; 
+            transform: translateY(-50%); 
+            color: #8B0000;
+        }
+        .liuqin-container { 
+            right: 30px; 
+            top: 50%; 
+            transform: translateY(-50%); 
+            color: #8B4513;
+        }
+        .liushen-container { 
+            top: 10px; 
+            left: 50%; 
+            transform: translateX(-50%); 
+            color: #2E8B57;
+        }
+        .wuxing-container {
+            bottom: 8px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: #D2691E;
+        }
+        .input-group { 
+            display: flex; 
+            justify-content: center; 
+            gap: 20px; 
+            margin-bottom: 20px; 
+        }
+        .time-input { 
+            width: 160px; 
+        }
+        .time-input input, #hour-select { 
+            width: 100%; 
+            padding: 8px; 
+            border: 2px solid #8B4513; 
+            border-radius: 5px; 
+        }
+        .input-section { 
+            margin: 20px auto; 
+            padding: 20px; 
+            background: #FFF8DC; 
+            border-radius: 10px; 
+            max-width: 800px; 
+        }
+        .container { 
+            display: grid; 
+            grid-template-columns: repeat(3, 1fr); 
+            gap: 20px; 
+            max-width: 800px; 
+            margin: 20px auto; 
+        }
+        .markers { 
+            position: absolute; 
+            left: 8px; 
+            bottom: 8px; 
+            display: flex; 
+            flex-direction: column; 
+            gap: 3px; 
+        }
+        .marker { 
+            font-size: 14px; 
+            color: #8B0000; 
+            padding: 2px 5px; 
+            background: rgba(255,255,255,0.8); 
+            border-radius: 3px; 
+            border: 1px solid #8B0000; 
+        }
+        .self-mark { 
+            position: absolute; 
+            top: 8px; 
+            right: 8px; 
+            width: 20px; 
+            height: 20px; 
+            background: #8B0000; 
+            border-radius: 50%; 
+            box-shadow: 0 0 5px rgba(139,0,0,0.5); 
+        }
+        .interpretation-section { 
+            max-width: 1000px; 
+            margin: 40px auto; 
+            padding: 30px; 
+            background: #FFF8DC; 
+            border-radius: 15px; 
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1); 
+            font-family: '楷体'; 
+        }
+        .interpretation-grid { 
+            display: grid; 
+            grid-template-columns: repeat(2, 1fr); 
+            gap: 25px; 
+        }
+        .palace-interpretation { 
+            padding: 20px; 
+            background: #F5DEB3; 
+            border: 2px solid #8B4513; 
+            border-radius: 10px; 
+        }
+        .interpretation-title { 
+            color: #8B0000; 
+            font-size: 20px; 
+            margin-bottom: 12px; 
+            text-align: center; 
+            font-weight: bold;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+        }
+        .interpretation-item { 
+            margin: 10px 0; 
+            line-height: 1.6;
+            font-size: 16px;
+        }
+        .dizhi-explain { 
+            color: inherit;
+            font-style: normal;
+        }
+        .time-mark {
+            font-size: 0.8em;
+            color: #8B4513;
+            margin-left: 8px;
+        }
+        /* 新增时空维度样式 */
+        .time-dimension-section {
+            max-width: 1000px;
+            margin: 30px auto;
+            padding: 25px;
+            background: #FFF8DC;
+            border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .dimension-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 25px;
+            font-family: '楷体';
+        }
+        .dimension-card {
+            padding: 20px;
+            background: #F5DEB3;
+            border: 2px solid #8B4513;
+            border-radius: 10px;
+        }
+        .dimension-title {
+            color: #8B0000;
+            font-size: 22px;
+            text-align: center;
+            margin-bottom: 15px;
+            font-weight: bold;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+        }
+        .dimension-content {
+            font-size: 16px;
+            line-height: 1.6;
+            color: #5C4033;
+        }
+        .dimension-content strong {
+            color: #8B4513;
+            display: block;
+            margin: 12px 0 8px;
+        }
+        .dimension-content ul {
+            margin: 8px 0;
+            padding-left: 20px;
+        }
+        .dimension-content li {
+            margin: 6px 0;
+        }
+    </style>
+</head>
+<body>
+    <h2 class="title">小六壬</h2>
+    <div class="input-section">
+        <div class="input-group">
+            <div class="time-input"><label>农历月份</label><input type="number" id="month" min="1" max="12" value="1"></div>
+            <div class="time-input"><label>农历日期</label><input type="number" id="day" min="1" max="30" value="1"></div>
+            <div class="time-input"><label>选择时辰</label><select id="hour-select">
+                <option value="1">子时(23:00-00:59)</option>
+                <option value="2">丑时(01:00-02:59)</option>
+                <option value="3">寅时(03:00-04:59)</option>
+                <option value="4">卯时(05:00-06:59)</option>
+                <option value="5">辰时(07:00-08:59)</option>
+                <option value="6">巳时(09:00-10:59)</option>
+                <option value="7">午时(11:00-12:59)</option>
+                <option value="8">未时(13:00-14:59)</option>
+                <option value="9">申时(15:00-16:59)</option>
+                <option value="10">酉时(17:00-18:59)</option>
+                <option value="11">戌时(19:00-20:59)</option>
+                <option value="12">亥时(21:00-22:59)</option>
+            </select></div>
+        </div>
+        <button id="start-btn">开 始 推 算</button>
+    </div>
+
+    <!-- 新增时空维度解析 -->
+    <div class="time-dimension-section">
+        <h3 class="title" style="text-align:center;margin-bottom:25px;font-family: '楷体';">时空维度解析</h3>
+        <div class="dimension-grid">
+            <div class="dimension-card">
+                <div class="dimension-title">月</div>
+                <div class="dimension-content">
+                    <strong>侧重：整体趋势与宏观环境</strong>
+                    月份代表事物所处的<u>大环境或长期趋势</u>，常用于分析事件的大方向、外部条件的影响，或者与季节、周期相关的因素。
+                    <strong>例如：</strong>
+                    <ul>
+                        <li>问事业：行业趋势或年度运势</li>
+                        <li>问感情：长期发展潜力</li>
+                        <li>问健康：季节性疾病提示</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="dimension-card">
+                <div class="dimension-title">日</div>
+                <div class="dimension-content">
+                    <strong>侧重：具体事件的核心与过程</strong>
+                    日子对应<u>事件本身的主体和当下的状态</u>，是判断吉凶的核心依据。
+                    <strong>例如：</strong>
+                    <ul>
+                        <li>问投资：项目可行性</li>
+                        <li>问出行：途中顺利度</li>
+                        <li>问决策：行动时机判断</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="dimension-card">
+                <div class="dimension-title">时</div>
+                <div class="dimension-content">
+                    <strong>侧重：即时结果与细节变化</strong>
+                    时辰代表<u>事件的最终结果或细微变化</u>，常用于判断短期内的发展或具体操作的成败。
+                    <strong>例如：</strong>
+                    <ul>
+                        <li>问谈判：当日协议结果</li>
+                        <li>问寻物：找回方位时间</li>
+                        <li>问疾病：当日病情转归</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="palace" data-name="留连">留连<div class="markers"></div></div>
+        <div class="palace" data-name="速喜">速喜<div class="markers"></div></div>
+        <div class="palace" data-name="赤口">赤口<div class="markers"></div></div>
+        <div class="palace" data-name="大安">大安<div class="markers"></div></div>
+        <div class="palace" data-name="空亡">空亡<div class="markers"></div></div>
+        <div class="palace" data-name="小吉">小吉<div class="markers"></div></div>
+    </div>
+
+    <div class="interpretation-section">
+        <h3 class="title" style="text-align:center;margin-bottom:25px">卦象解析</h3>
+<h5 class="title" style="text-align:center;margin-bottom:15px">五行相生：木→火→土→金→水→木</h5>
+<h5 class="title" style="text-align:center;margin-bottom:15px">五行相克：金→木→土→水→火→金</h5>
+        <div class="interpretation-grid"></div>
+    </div>
+
+    <script>
+        const liuShenMap = { '寅':'青龙','卯':'青龙','巳':'朱雀','午':'朱雀','丑':'勾陈','辰':'勾陈','未':'腾蛇','戌':'腾蛇','申':'白虎','酉':'白虎','亥':'玄武','子':'玄武' };
+        const palaces = ["大安","留连","速喜","赤口","小吉","空亡"];
+        const dizhiData = [
+            {name:"子",wuxing:"水"},{name:"丑",wuxing:"土"},{name:"寅",wuxing:"木"},{name:"卯",wuxing:"木"},
+            {name:"辰",wuxing:"土"},{name:"巳",wuxing:"火"},{name:"午",wuxing:"火"},{name:"未",wuxing:"土"},
+            {name:"申",wuxing:"金"},{name:"酉",wuxing:"金"},{name:"戌",wuxing:"土"},{name:"亥",wuxing:"水"}
+        ];
+        const starSequence = ['木星','火星','土星','金星','水星','天空'];
+        const expertData = {
+            dizhi: {
+                '子水':'，五行为水，北方，主隐秘事务及财运初启，防肾疾和财物遗失',
+                '丑土':'，五行为土，东北，主土地合作与慢性积累，脾胃易虚，慎拖延纠纷',
+                '寅木':'，五行为木，东北，主文书远行与升迁机遇，护肝明目，防合同争议',
+                '卯木':'，五行为木，东方，主交易桃花与人际修复，肝火旺盛，防感情破裂',
+                '辰土':'，五行为土，东南，主竞争纠纷与变动风险，皮肤过敏，避官司争斗',
+                '巳火':'，五行为火，东南，主口舌信息与传播沟通，防心火过旺，慎谣言延误',
+                '午火':'，五行为火，南方，主急速冲突与血光之灾，护心降压，远利器和高温',
+                '未土':'，五行为土，西南，主享乐拖延与慢性消耗，控糖防病，忌过度松懈',
+                '申金':'，五行为金，西南，主机械交通与意外损伤，呼吸敏感，防车祸利器伤',
+                '酉金':'，五行为金，西方，主财务纠纷与金属交易，咽喉肺弱，慎官司破财',
+                '戌土':'，五行为土，西北，主官非牢狱与突发变动，骨骼关节痛，避冲突违法',
+                '亥水':'，五行为水，西北，主危机终结与情感波动，内分泌失调，防欺骗陷阱'
+            },
+            palaces: {
+                '大安':'<strong>吉凶</strong>：大吉，安稳平顺。<br><br><strong>时间</strong>：主近期或事情发展缓慢。<br><br><strong>方位</strong>：东方或东南方。<br><br><strong>事项</strong>：适合求稳、等待时机，如婚姻、健康、出行等皆顺遂。<br><br><strong>健康</strong>：无大碍，病情稳定。<br><br><strong>人际关系</strong>：和谐，贵人相助。',
+                '留连':'<strong>吉凶</strong>：中平偏凶，拖延阻滞。<br><br><strong>时间</strong>：主事情拖延，需耐心等待。<br><br><strong>方位</strong>：南方或西南方。<br><br><strong>事项</strong>：易遇阻碍、反复，如求财不顺、出行延误、官司纠缠。<br><br><strong>健康</strong>：慢性病或旧疾复发。<br><br><strong>人际关系</strong>：易生误会，需防小人。',
+                '速喜':'<strong>吉凶</strong>：大吉，迅速有成。<br><br><strong>时间</strong>：主近期快速见效。<br><br><strong>方位</strong>：南方或西南方。<br><br><strong>事项</strong>：喜事临门，如财运、姻缘、考试顺利，消息快至。<br><br><strong>健康</strong>：康复迅速。<br><br><strong>人际关系</strong>：得人相助，合作顺利。',
+                '赤口':'<strong>吉凶</strong>：大凶，口舌是非。<br><br><strong>时间</strong>：主短期内冲突或意外。<br><br><strong>方位</strong>：西方或西北方。<br><br><strong>事项</strong>：易惹官司、争吵、破财，需谨言慎行。<br><br><strong>健康</strong>：外伤或急症。<br><br><strong>人际关系</strong>：易生争执，需防背叛。',
+                '小吉':'<strong>吉凶</strong>：中吉，小利可图。<br><br><strong>时间</strong>：主渐进式成功。<br><br><strong>方位</strong>：北方或东北方。<br><br><strong>事项</strong>：适合谋小事，如求职、交易、旅行顺利，但收益有限。<br><br><strong>健康</strong>：轻微不适，无大碍。<br><br><strong>人际关系</strong>：得小助，但需主动争取。',
+                '空亡':'<strong>吉凶</strong>：大凶，虚无落空。<br><br><strong>时间</strong>：主事无结果或中途停滞。<br><br><strong>方位</strong>：中央或不定方位。<br><br><strong>事项</strong>：计划落空、努力无果，如投资失利、感情破裂。<br><br><strong>健康</strong>：病情反复或精神不振。<br><br><strong>人际关系</strong>：孤立无援，需防欺骗。'
+            },
+            liuShen: {
+                '青龙':'，五行为木，大吉，婚姻和谐、事业升迁、贵人扶持、财运稳定',
+                '朱雀':'，五行为火，吉中藏凶，消息传递、文书签订、喜庆活动、防口舌争吵',
+                '勾陈':'，五行为土，中吉带争，土地交易、合作谈判、缓慢获利、慎合同纠纷',
+                '腾蛇':'，五行为土，中平偏凶，拖延反复、虚惊怪异、暗藏隐患、需防欺骗',
+                '白虎':'，五行为金，大凶，血光意外、手术伤病、官非诉讼、避金属利器',
+                '玄武':'，五行为水，大凶，财物失窃、隐私泄露、暗昧陷阱、防水患阴险'
+            },
+            stars: {
+                '木星':'，五行为木，大吉，升迁机遇、贵人扶持、事业拓展、利东方',
+                '火星':'，五行为火，吉中藏凶，急速变动、文书火电、防口舌血光、避南方燥热',
+                '土星':'，五行为土，中平带滞，土地房产、缓慢积累、慢性疾病、防拖延纠纷',
+                '金星':'，五行为金，中吉带争，财务交易、金属器械、利西方谈判、慎官司破财',
+                '水星':'，五行为水，中平多变，信息流动、远行出行、防水患欺骗、利北方暗谋',
+                '天空':'，五行为土，大凶，虚无空亡、事无着落、防财物遗失、避虚诈陷阱'
+            },
+            liuQin: {
+                '自身':'，中性平顺，主个人状态、决策成败，健康安危，宜结合宫位定吉凶',
+                '父母':'，中吉带护，主长辈扶持、房产文书、学业功名，防辛劳压力',
+                '子孙':'，中平带争，主手足相助、合作竞争、社交纠纷，防破财反目',
+                '妻财':'，吉凶参半，主婚姻感情、正偏财运、投资得失，防情感纠纷',
+                '官鬼':'，大吉带耗，主子嗣缘份、健康福气、娱乐休闲，防乐极生悲',
+                '兄弟':'，大凶带压，主官司诉讼、职场压力、疾病灾厄，避冲突是非'
+            }
+        };
+
+        function generateDizhi(hour) {
+            let sequence = [], index = hour - 1;
+            for(let i=0; i<6; i++){ sequence.push(dizhiData[index%12]); index +=2; }
+            return sequence;
+        }
+
+        function arrangeDizhi(hourIndex, sequence) {
+            let result = {}, currentIndex = hourIndex;
+            sequence.forEach(dz => { result[palaces[currentIndex]] = dz; currentIndex = (currentIndex+1)%6; });
+            return result;
+        }
+
+        function generateStars(dayIndex) {
+            let stars = {};
+            for(let i=0; i<6; i++){ const palaceIndex = (dayIndex+i)%6; stars[palaces[palaceIndex]] = starSequence[i]; }
+            return stars;
+        }
+
+        function getLiuqin(selfWuxing, targetWuxing) {
+            const shengMap = {"木":"火","火":"土","土":"金","金":"水","水":"木"};
+            const keMap = {"木":"土","火":"金","土":"水","金":"木","水":"火"};
+            if(shengMap[targetWuxing]===selfWuxing) return '父母';
+            if(keMap[targetWuxing]===selfWuxing) return '官鬼';
+            if(shengMap[selfWuxing]===targetWuxing) return '子孙';
+            if(keMap[selfWuxing]===targetWuxing) return '妻财';
+            if(selfWuxing===targetWuxing) return '兄弟';
+            return '未知';
+        }
+
+        function generateInterpretation(mIdx, dIdx, hIdx) {
+            const grid = document.querySelector('.interpretation-grid');
+            grid.innerHTML = '';
+            palaces.forEach((palace, index) => {
+                const palaceDiv = document.querySelector(`[data-name="${palace}"]`);
+                const data = {
+                    dizhi: palaceDiv.querySelector('.dizhi-container').textContent,
+                    liushen: palaceDiv.querySelector('.liushen-container').textContent,
+                    liuqin: palaceDiv.querySelector('.liuqin-container').textContent,
+                    star: palaceDiv.querySelector('.wuxing-container').textContent
+                };
+                const dzKey = data.dizhi;
+                
+                const timeMarks = [];
+                if (index === mIdx) timeMarks.push('月');
+                if (index === dIdx) timeMarks.push('日');
+                if (index === hIdx) timeMarks.push('时');
+                const timeMark = timeMarks.length > 0 ? `（${timeMarks.join('、')}）` : '';
+
+                const div = document.createElement('div');
+                div.className = 'palace-interpretation';
+                div.innerHTML = `
+                    <div class="interpretation-title">${palace}宫解析<span class="time-mark">${timeMark}</span></div>
+                    <div class="interpretation-content">
+                        <div style="margin-bottom:15px">${expertData.palaces[palace]}</div>
+                        <div class="interpretation-item">
+                            <strong>地支：</strong>${data.dizhi} 
+                            <span class="dizhi-explain">${expertData.dizhi[dzKey]}</span>
+                        </div>
+                        <div class="interpretation-item"><strong>六神：</strong>${data.liushen} ${expertData.liuShen[data.liushen]}</div>
+  			<div class="interpretation-item"><strong>五星：</strong>${data.star} ${expertData.stars[data.star]}</div>
+                        <div class="interpretation-item"><strong>六亲：</strong>${data.liuqin} ${expertData.liuQin[data.liuqin]}</div>
+                      
+                    </div>
+                `;
+                grid.appendChild(div);
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('start-btn').addEventListener('click', () => {
+                document.querySelectorAll('.self-mark, .marker, .dizhi-container, .liuqin-container, .liushen-container, .wuxing-container').forEach(el => el.remove());
+                const month = parseInt(document.getElementById('month').value) || 1;
+                const day = parseInt(document.getElementById('day').value) || 1;
+                const hour = parseInt(document.getElementById('hour-select').value) || 1;
+                const mIdx = (month-1)%6;
+                const dIdx = (mIdx+day-1)%6;
+                const hIdx = (dIdx+hour-1)%6;
+                const dizhiSequence = generateDizhi(hour);
+                const dizhiArrangement = arrangeDizhi(hIdx, dizhiSequence);
+                const starDistribution = generateStars(dIdx);
+                const selfDizhi = dizhiSequence[0];
+                const selfWuxing = selfDizhi.wuxing;
+                const selfPalaceName = palaces[hIdx];
+                
+                document.querySelector(`[data-name="${selfPalaceName}"]`).appendChild(document.createElement('div')).className = 'self-mark';
+
+                palaces.forEach(palaceName => {
+                    const palace = document.querySelector(`[data-name="${palaceName}"]`);
+                    const dz = dizhiArrangement[palaceName];
+                    
+                    const lsDiv = document.createElement('div'); 
+                    lsDiv.className='liushen-container'; 
+                    lsDiv.textContent=liuShenMap[dz.name];
+                    
+                    const dzDiv = document.createElement('div'); 
+                    dzDiv.className='dizhi-container'; 
+                    dzDiv.textContent = `${dz.name}${dz.wuxing}`;
+                    
+                    const lqDiv = document.createElement('div'); 
+                    lqDiv.className='liuqin-container'; 
+                    lqDiv.textContent = palaceName===selfPalaceName ? '自身' : getLiuqin(selfWuxing, dz.wuxing);
+                    
+                    const starDiv = document.createElement('div');
+                    starDiv.className = 'wuxing-container';
+                    starDiv.textContent = starDistribution[palaceName];
+                    
+                    palace.append(lsDiv, dzDiv, lqDiv, starDiv);
+                });
+
+                [[mIdx,'月'],[dIdx,'日'],[hIdx,'时']].forEach(([index,type]) => {
+                    document.querySelector(`[data-name="${palaces[index]}"] .markers`).insertAdjacentHTML('beforeend',`<div class="marker">${type}</div>`);
+                });
+
+                generateInterpretation(mIdx, dIdx, hIdx);
+            });
+        });
+    </script>
+</body>
+</html>
